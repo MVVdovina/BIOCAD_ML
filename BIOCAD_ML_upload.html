@@ -3,7 +3,7 @@
 <html lang="en">
 <head><meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Notebook</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+<title>BIOCAD_ML_upload</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <style type="text/css">
     pre { line-height: 125%; }
 td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
@@ -7312,6 +7312,7 @@ a.anchor-link {
                     processEnvironments: true
                 },
                 displayAlign: 'center',
+                messageStyle: 'none',
                 CommonHTML: {
                     linebreaks: {
                     automatic: true
@@ -7517,6 +7518,7 @@ a.anchor-link {
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <p>Предобработка датасета.</p>
+<p>Dataset preprocessing.</p>
 </div>
 </div>
 </div>
@@ -7528,9 +7530,9 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In [1]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 </pre></div>
 </div>
 </div>
@@ -7544,6 +7546,7 @@ a.anchor-link {
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <p>Загрузим БД.</p>
+<p>Downloading database.</p>
 </div>
 </div>
 </div>
@@ -7934,6 +7937,20 @@ skempi_v2.csv.12    100%[===================&gt;]   1,53M   476KB/s    in 3,3s
 </div>
 </div>
 </div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=1b30a9a2-b9f7-4e06-aaff-9c5daeb1e791">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<p>According to the <a href="https://academic.oup.com/bioinformatics/article/35/3/462/5055583">paper</a>, to calculate ΔG it is sufficient to know the temperature (column <code>Temperature</code>) and the dissociation constant ( K_D ), which corresponds to the values in the columns <code>Affinity_mut_parsed</code> and <code>Affinity_wt_parsed</code> ("the wild-type and mutant affinities ((K_D), M)"). We will keep these relevant columns.</p>
+<p>It is necessary to specify the mutations more concretely. The PDB identifiers contain overly specific information, so if we aim to predict the sign change of ΔG, this data would be excessive. It is more reasonable to consider which proteins form the complex (<code>Protein 1</code>, <code>Protein 2</code>), the mutation positions within the proteins (<code>iMutation_Location(s)</code>), and the column <code>Mutation(s)_cleaned</code> with positional data removed (we will only look at the “type” of mutation — which amino acid is replaced by which).</p>
+<p>We could also consider the type of complex (<code>Hold_out_type</code>), but since it is not defined for all entries, removing rows with missing values (NaN) would lead to excessive data loss.</p>
+<p>All other columns will be removed.</p>
+</div>
+</div>
+</div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=e9434a70-5b6a-4f16-a4ac-fec1b67b3d35">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
@@ -8109,7 +8126,8 @@ skempi_v2.csv.12    100%[===================&gt;]   1,53M   476KB/s    in 3,3s
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<p>Проверим на вырожденность датасета: вдруг встречаются записи для белков, в которых просто Protein 1 и Protein 2 поменяны местами.</p>
+<p>Проверим на вырожденность датасета: вдруг встречаются записи для белков, в которых просто Protein 1 и Protein 2 поменяны местами</p>
+<p>Let's check the dataset for degeneracy: it is possible that there are entries where the values of <code>Protein 1</code> and <code>Protein 2</code> are simply swapped.</p>
 </div>
 </div>
 </div>
@@ -8154,6 +8172,7 @@ Index: []
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <p>Отлично, таких нет, поэтому удалим какие либо NaN (надо заметить, что их немного, так что в целом большого потери информации не будет).</p>
+<p>We will remove all rows with NaN values in the dataset, given that such values are few and their removal will not significantly affect the information content.</p>
 </div>
 </div>
 </div>
@@ -8363,7 +8382,7 @@ Index: []
 <div class="jp-InputPrompt jp-InputArea-prompt">In [8]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
 <span class="c1"># Список всех аминокислот (однобуквенные коды)</span>
 <span class="n">amino_acids</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'A'</span><span class="p">,</span> <span class="s1">'C'</span><span class="p">,</span> <span class="s1">'D'</span><span class="p">,</span> <span class="s1">'E'</span><span class="p">,</span> <span class="s1">'F'</span><span class="p">,</span> <span class="s1">'G'</span><span class="p">,</span> <span class="s1">'H'</span><span class="p">,</span> <span class="s1">'I'</span><span class="p">,</span> <span class="s1">'K'</span><span class="p">,</span> <span class="s1">'L'</span><span class="p">,</span> 
@@ -8750,6 +8769,24 @@ Index: []
 </div>
 </div>
 </div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=42e34b4d-7e77-401b-a96f-b7786b30d3e1">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<p>We will preprocess the mutations by extracting the original amino acids and the ones they were substituted with, along with their positions in the protein.</p>
+<p>Instead of traditional one-hot encoding, we will create a custom binary encoding with 200 columns defined as follows:</p>
+<ul>
+<li>20 amino acid types</li>
+<li>5 positional categories in the protein (e.g., interface core, rim, support, interior, surface)</li>
+<li>Two states: original amino acid and mutated amino acid</li>
+</ul>
+<p>For each mutation, the corresponding columns will be set to 1 (presence), and 0 otherwise. Multiple mutations in one entry will be encoded cumulatively, marking each observed original and mutated amino acid at their respective positions.</p>
+</div>
+</div>
+</div>
+</div>
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=7516b15f-f021-4df3-88d8-16b92987058e">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
@@ -8757,6 +8794,7 @@ Index: []
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <p>Найдем все необходимые $\Delta G$, расчитаем ∆∆G.</p>
+<p>Find all necessary $\Delta G$ values, calculate ∆∆G.</p>
 </div>
 </div>
 </div>
@@ -9138,6 +9176,7 @@ Index: []
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <p>Сделаем one hot encoding для белков, которые входят в комплекс.</p>
+<p>Let's perform one-hot encoding for the proteins that are part of the complex.</p>
 </div>
 </div>
 </div>
@@ -9149,7 +9188,7 @@ Index: []
 <div class="jp-InputPrompt jp-InputArea-prompt">In [11]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">OneHotEncoder</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">OneHotEncoder</span>
 <span class="n">ohe</span> <span class="o">=</span> <span class="n">OneHotEncoder</span><span class="p">(</span><span class="n">sparse_output</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="n">ML_data</span><span class="o">=</span><span class="n">data_for_ML</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">data_for_ML</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span> <span class="o">=</span> <span class="n">data_for_ML</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">403</span><span class="p">])</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
@@ -9496,6 +9535,18 @@ Index: []
 </div>
 </div>
 </div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=2672bc3f-c5ff-4f35-815e-c43c6982aec2">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<p>Let's try to build a model that will attempt to predict the change in ddG based on the position of the mutant residue at a specific type of interaction site between two proteins, classified as support, core, rim, interior, or surface.</p>
+<p>The rationale is that if we look qualitatively at the mutations themselves and their specific positions in the PDB, it seems that even the simplest machine learning model won't suffice here. Furthermore, while studying the database, I noticed that in addition to single mutations, there are also mutations in multiple amino acid residues. However, since only the total change in dG is provided, such multiple mutations will be treated as distinct classes in the model. This is because the individual contribution of each mutation cannot be isolated; their influence can only be understood in aggregate.</p>
+</div>
+</div>
+</div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=b51f4074-93d2-4d28-92b7-ffe0ccdef5f5">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
@@ -9504,7 +9555,7 @@ Index: []
 <div class="jp-InputPrompt jp-InputArea-prompt">In [12]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">train_test_split</span>
 </pre></div>
 </div>
 </div>
@@ -9533,6 +9584,7 @@ Index: []
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="c1"># сколько ddG с положительным знаком (класс 1)</span>
+<span class="c1"># Count ddG values with a positive sign (class 1)</span>
 <span class="p">(</span><span class="n">ML_data</span><span class="p">[</span><span class="s1">'Classes'</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -9560,6 +9612,7 @@ Index: []
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="c1"># сколько ddG с отрицательным знаком (класс 1)</span>
+<span class="c1"># Count ddG values with a negative sign (class 0)</span>
 <span class="p">(</span><span class="n">ML_data</span><span class="p">[</span><span class="s1">'Classes'</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -9589,6 +9642,17 @@ Index: []
 </div>
 </div>
 </div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=64daf618-8da1-4878-8579-bc6c19901863">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<p>One class clearly predominates—the one corresponding to a positive change in ddG. Therefore, the dataset exhibits class imbalance, which is generally logical since mutations in proteins most often lead to their destabilization and reduced affinity. For training models, we will set <code>class_weight='balanced'</code> wherever possible right away, but later we will check how appropriate this hyperparameter is using <code>GridSearchCV</code>.</p>
+</div>
+</div>
+</div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=664029b5-d04b-4f7f-b22f-a25e4119ce55">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
@@ -9598,6 +9662,7 @@ Index: []
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="c1"># разобьем выборку на train и test</span>
+<span class="c1"># Split the dataset into train and test sets.</span>
 <span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">ML</span><span class="p">,</span> <span class="n">ML_data</span><span class="p">[</span><span class="s1">'Classes'</span><span class="p">],</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -9612,11 +9677,11 @@ Index: []
 <div class="jp-InputPrompt jp-InputArea-prompt">In [17]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="kn">import</span> <span class="n">RandomForestClassifier</span><span class="p">,</span> <span class="n">GradientBoostingClassifier</span>
-<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
-<span class="kn">from</span> <span class="nn">sklearn.svm</span> <span class="kn">import</span> <span class="n">SVC</span>
-<span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">tree</span>
-<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">accuracy_score</span><span class="p">,</span> <span class="n">precision_score</span><span class="p">,</span> <span class="n">recall_score</span><span class="p">,</span> <span class="n">f1_score</span><span class="p">,</span> <span class="n">classification_report</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.ensemble</span><span class="w"> </span><span class="kn">import</span> <span class="n">RandomForestClassifier</span><span class="p">,</span> <span class="n">GradientBoostingClassifier</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.linear_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogisticRegression</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.svm</span><span class="w"> </span><span class="kn">import</span> <span class="n">SVC</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn</span><span class="w"> </span><span class="kn">import</span> <span class="n">tree</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">accuracy_score</span><span class="p">,</span> <span class="n">precision_score</span><span class="p">,</span> <span class="n">recall_score</span><span class="p">,</span> <span class="n">f1_score</span><span class="p">,</span> <span class="n">classification_report</span>
 
 <span class="n">dtc</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">DecisionTreeClassifier</span><span class="p">(</span><span class="n">class_weight</span><span class="o">=</span><span class="s1">'balanced'</span><span class="p">)</span>
 <span class="n">rf</span> <span class="o">=</span> <span class="n">RandomForestClassifier</span><span class="p">(</span><span class="n">class_weight</span><span class="o">=</span><span class="s1">'balanced'</span><span class="p">)</span> <span class="c1">#</span>
@@ -9732,6 +9797,26 @@ weighted avg       0.81      0.78      0.79      1359
 </div>
 </div>
 </div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=8e006498-5207-45f8-bc4c-db967e6439ec">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<p>When evaluating models, it makes sense to primarily focus on two metrics: f1-score and accuracy. This choice is justified by the following:</p>
+<ol>
+<li><strong>Precision</strong>: The proportion of correctly predicted positive instances among all instances predicted as the positive class.</li>
+<li><strong>Recall</strong>: The proportion of correctly identified positive instances among all actual positive class instances.</li>
+<li><strong>F1-score</strong>: The harmonic mean of precision and recall.</li>
+<li><strong>Accuracy</strong>: The proportion of instances for which we correctly predicted the class.</li>
+</ol>
+<p>Thus, accuracy gives us a general idea of the model's predictive ability, but it is insufficient on its own because it does not account for class imbalance. The f1-score, however, does account for this characteristic of our dataset, and by using this metric, we consider both precision and recall.</p>
+<p>Looking at the results above, we can say that the DecisionTreeClassifier, RandomForestClassifier, and SVC models yield reasonably good results for both metrics. The other classifiers (LogisticRegression and GradientBoostingClassifier) show a rather low predictive ability for class 0 (mutations with ddG &lt; 0).</p>
+<p>Let's try to improve the metrics for all classes by addressing the class imbalance problem using undersampling and oversampling methods, and then compare the results.</p>
+</div>
+</div>
+</div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=8099b4e0-a42a-407a-a467-368e4949bed8">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
@@ -9740,10 +9825,11 @@ weighted avg       0.81      0.78      0.79      1359
 <div class="jp-InputPrompt jp-InputArea-prompt">In [19]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">imblearn.over_sampling</span> <span class="kn">import</span> <span class="n">RandomOverSampler</span>
-<span class="kn">from</span> <span class="nn">imblearn.under_sampling</span> <span class="kn">import</span> <span class="n">RandomUnderSampler</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">imblearn.over_sampling</span><span class="w"> </span><span class="kn">import</span> <span class="n">RandomOverSampler</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">imblearn.under_sampling</span><span class="w"> </span><span class="kn">import</span> <span class="n">RandomUnderSampler</span>
 
 <span class="c1"># заново объявим классификаторы</span>
+<span class="c1"># Let's redeclare the classifiers.</span>
 <span class="n">dtc</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">DecisionTreeClassifier</span><span class="p">(</span><span class="n">class_weight</span><span class="o">=</span><span class="s1">'balanced'</span><span class="p">)</span>
 <span class="n">rf</span> <span class="o">=</span> <span class="n">RandomForestClassifier</span><span class="p">(</span><span class="n">class_weight</span><span class="o">=</span><span class="s1">'balanced'</span><span class="p">)</span> <span class="c1">#</span>
 <span class="n">gb</span> <span class="o">=</span> <span class="n">GradientBoostingClassifier</span><span class="p">()</span>
@@ -9755,22 +9841,26 @@ weighted avg       0.81      0.78      0.79      1359
 
 
 <span class="c1"># Определим методы сэмплинга</span>
+<span class="c1"># Let's define the sampling methods.</span>
 <span class="n">samplers</span> <span class="o">=</span> <span class="p">[</span>
     <span class="p">(</span><span class="s1">'RandomOverSampler'</span><span class="p">,</span> <span class="n">RandomOverSampler</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)),</span>
     <span class="p">(</span><span class="s1">'RandomUnderSampler'</span><span class="p">,</span> <span class="n">RandomUnderSampler</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">))</span>
 <span class="p">]</span>
 
 <span class="c1"># Сделаем перебор по методам сэмплинга и по классфикаторам</span>
+<span class="c1"># Let's iterate over sampling methods and classifiers.</span>
 <span class="k">for</span> <span class="n">sampler_name</span><span class="p">,</span> <span class="n">sampler</span> <span class="ow">in</span> <span class="n">samplers</span><span class="p">:</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2">=== Applying </span><span class="si">{</span><span class="n">sampler_name</span><span class="si">}</span><span class="s2"> ==="</span><span class="p">)</span>
     
     <span class="c1"># применим сэмплинг для уже имеющихся трейн и тест выборок</span>
+    <span class="c1"># Apply sampling to the existing train and test sets.</span>
     <span class="n">Xr_train</span><span class="p">,</span> <span class="n">yr_train</span> <span class="o">=</span> <span class="n">sampler</span><span class="o">.</span><span class="n">fit_resample</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
     
     <span class="k">for</span> <span class="n">classifier</span> <span class="ow">in</span> <span class="n">classifiers</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2">--- Evaluating </span><span class="si">{</span><span class="n">classifier</span><span class="si">}</span><span class="s2"> with </span><span class="si">{</span><span class="n">sampler_name</span><span class="si">}</span><span class="s2"> ---"</span><span class="p">)</span>
         
         <span class="c1"># Обучение и предсказание</span>
+        <span class="c1"># Training and prediction.</span>
         <span class="n">classifier</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">Xr_train</span><span class="p">,</span> <span class="n">yr_train</span><span class="p">)</span>
         <span class="n">y_pred</span> <span class="o">=</span> <span class="n">classifier</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
         
@@ -9938,6 +10028,18 @@ weighted avg       0.80      0.73      0.75      1359
 </div>
 </div>
 </div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=4115999b-c82c-4b21-bb95-facdee03a332">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<p>Overall, the metrics improved for the oversampling case. However, there is a risk of overfitting with it, while in the case of undersampling, due to the randomness of the removed data, unique data might be eliminated, which risks a loss in model quality. Therefore, we will perform cross-validation and grid search (using the <code>sklearn.model_selection.GridSearchCV</code> class) for the oversampling case.</p>
+<p>To find the most suitable hyperparameters, I split the DataFrame into train and test sets. On the train set, I performed a greedy grid search over the model hyperparameters. I don't have enough local computational resources for a full exhaustive search, so I selected the first 3-4 hyperparameters from the documentation, plus class_weight, to evaluate how good the previous models were.</p>
+</div>
+</div>
+</div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=4f793e3c-cb9b-4af3-a9ba-ae282d565f26">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
@@ -9947,6 +10049,7 @@ weighted avg       0.80      0.73      0.75      1359
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="c1"># создадим новые трейн и тест, но заоверсэмплим прейн. Обучим модели заново</span>
+<span class="c1"># Create new train and test sets, but apply oversampling only to the train set. Retrain the models.</span>
 
 <span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">ML</span><span class="p">,</span> <span class="n">ML_data</span><span class="p">[</span><span class="s1">'Classes'</span><span class="p">],</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
 <span class="n">ros</span> <span class="o">=</span> <span class="n">RandomOverSampler</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
@@ -9967,10 +10070,11 @@ weighted avg       0.80      0.73      0.75      1359
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [21]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [1]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="c1"># сделаем грид серч</span>
+<span class="c1"># grid search</span>
 </pre></div>
 </div>
 </div>
@@ -9984,7 +10088,7 @@ weighted avg       0.80      0.73      0.75      1359
 <div class="jp-InputPrompt jp-InputArea-prompt">In [22]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">GridSearchCV</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">GridSearchCV</span>
 </pre></div>
 </div>
 </div>
@@ -10048,6 +10152,7 @@ Best f1 score: 0.8812
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="c1"># оценим модель с новыми гиперпараметрами</span>
+<span class="c1"># Evaluate the model with the new hyperparameters.</span>
 
 <span class="n">rf1</span> <span class="o">=</span> <span class="n">RandomForestClassifier</span><span class="p">(</span><span class="o">**</span><span class="n">grid_search</span><span class="o">.</span><span class="n">best_params_</span><span class="p">)</span>
 <span class="n">rf1</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train_over</span><span class="p">,</span> <span class="n">y_train_over</span><span class="p">)</span>
@@ -10140,6 +10245,7 @@ Best f1 score: 0.8425
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="c1"># оценим модель с новыми гиперпараметрами</span>
+<span class="c1"># Evaluate the model with the new hyperparameters.</span>
 <span class="n">gb1</span> <span class="o">=</span> <span class="n">GradientBoostingClassifier</span><span class="p">(</span><span class="o">**</span><span class="n">grid_search</span><span class="o">.</span><span class="n">best_params_</span><span class="p">)</span>
 <span class="n">gb1</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train_over</span><span class="p">,</span> <span class="n">y_train_over</span><span class="p">)</span>
 <span class="n">y_pred</span> <span class="o">=</span> <span class="n">gb1</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
@@ -10184,12 +10290,12 @@ weighted avg       0.81      0.77      0.79      1359
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=756590e7-1210-447c-abc7-a0522a89f09f">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=756590e7-1210-447c-abc7-a0522a89f09f">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [34]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
@@ -10206,6 +10312,179 @@ weighted avg       0.81      0.77      0.79      1359
 </div>
 </div>
 </div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>Fitting 5 folds for each of 48 candidates, totalling 240 fits
+</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr" tabindex="0">
+<pre>/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1186: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1186: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1186: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1186: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1186: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1186: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1186: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1186: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1186: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1186: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1186: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1186: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1186: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1186: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1186: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1186: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1186: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1186: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1186: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1186: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1186: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1186: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1186: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1186: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1186: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1186: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1186: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1186: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1186: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1186: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1186: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1186: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1186: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1186: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1186: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1186: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1186: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1186: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1186: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1186: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1186: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1186: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1186: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1186: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1186: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1186: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1186: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1186: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1186: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1186: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/model_selection/_validation.py:547: FitFailedWarning: 
+120 fits failed out of a total of 240.
+The score on these train-test partitions for these parameters will be set to nan.
+If these failures are not expected, you can try to debug them by setting error_score='raise'.
+
+Below are more details about the failures:
+--------------------------------------------------------------------------------
+60 fits failed with the following error:
+Traceback (most recent call last):
+  File "/Applications/anaconda3/lib/python3.12/site-packages/sklearn/model_selection/_validation.py", line 895, in _fit_and_score
+    estimator.fit(X_train, y_train, **fit_params)
+  File "/Applications/anaconda3/lib/python3.12/site-packages/sklearn/base.py", line 1474, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py", line 1172, in fit
+    solver = _check_solver(self.solver, self.penalty, self.dual)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py", line 67, in _check_solver
+    raise ValueError(
+ValueError: Solver lbfgs supports only 'l2' or None penalties, got l1 penalty.
+
+--------------------------------------------------------------------------------
+60 fits failed with the following error:
+Traceback (most recent call last):
+  File "/Applications/anaconda3/lib/python3.12/site-packages/sklearn/model_selection/_validation.py", line 895, in _fit_and_score
+    estimator.fit(X_train, y_train, **fit_params)
+  File "/Applications/anaconda3/lib/python3.12/site-packages/sklearn/base.py", line 1474, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py", line 1172, in fit
+    solver = _check_solver(self.solver, self.penalty, self.dual)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Applications/anaconda3/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py", line 67, in _check_solver
+    raise ValueError(
+ValueError: Solver lbfgs supports only 'l2' or None penalties, got elasticnet penalty.
+
+  warnings.warn(some_fits_failed_message, FitFailedWarning)
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/model_selection/_search.py:1051: UserWarning: One or more of the test scores are non-finite: [       nan 0.65605767        nan 0.73690168        nan 0.65597472
+        nan 0.73716791        nan 0.69254772        nan 0.73690168
+        nan 0.69263619        nan 0.73716791        nan 0.71820233
+        nan 0.73690168        nan 0.71884231        nan 0.73716791
+        nan 0.72943308        nan 0.73690168        nan 0.72965086
+        nan 0.73716791        nan 0.73607711        nan 0.73690168
+        nan 0.73609858        nan 0.73716791        nan 0.73790661
+        nan 0.73690168        nan 0.73701571        nan 0.73716791]
+  warnings.warn(
+</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>Best parameters: {'C': 100, 'class_weight': None, 'penalty': 'l2'}
+Best f1 score: 0.7379
+</pre>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=8d354f78-c196-4e13-8ff3-a3242d075faf">
 <div class="jp-Cell-inputWrapper" tabindex="0">
@@ -10213,7 +10492,20 @@ weighted avg       0.81      0.77      0.79      1359
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<p>При подборе параметров появлялись warnings при вариации penalty=None (поэтому output очищен в версии HTML, в .ipynb есть полный лог ячейки). Тем не менее наиболее подходящие параметры следующие:</p>
+<p>При подборе параметров появлялись warnings при вариации penalty=None (поэтому output скрыт). Тем не менее наиболее подходящие параметры следующие:</p>
+<p>Best parameters: {'C': 100, 'class_weight': None, 'penalty': 'l2'}</p>
+<p>Best f1 score: 0.7379</p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=bfad7606-d7f9-428f-b94b-0897b8ed85b1">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<p>During the parameter tuning, warnings appeared when varying <code>penalty=None</code> (therefore, the output is hidden). Nevertheless, the most suitable parameters are as follows:</p>
 <p>Best parameters: {'C': 100, 'class_weight': None, 'penalty': 'l2'}</p>
 <p>Best f1 score: 0.7379</p>
 </div>
@@ -10228,6 +10520,7 @@ weighted avg       0.81      0.77      0.79      1359
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="c1"># оценим модель с новыми гиперпараметрами</span>
+<span class="c1"># Evaluate the model with the new hyperparameters.</span>
 <span class="n">lg1</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">(</span><span class="o">**</span><span class="n">grid_search</span><span class="o">.</span><span class="n">best_params_</span><span class="p">)</span>
 <span class="n">lg1</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train_over</span><span class="p">,</span> <span class="n">y_train_over</span><span class="p">)</span>
 <span class="n">y_pred</span> <span class="o">=</span> <span class="n">lg1</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
@@ -10272,12 +10565,12 @@ weighted avg       0.76      0.69      0.71      1359
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=9896a55b-ac55-49db-aa9d-94c51ee96167">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=9896a55b-ac55-49db-aa9d-94c51ee96167">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [29]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
@@ -10295,6 +10588,93 @@ weighted avg       0.76      0.69      0.71      1359
 </div>
 </div>
 </div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>Fitting 5 folds for each of 32 candidates, totalling 160 fits
+</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr" tabindex="0">
+<pre>/Applications/anaconda3/lib/python3.12/site-packages/sklearn/svm/_base.py:297: ConvergenceWarning: Solver terminated early (max_iter=50000).  Consider pre-processing your data with StandardScaler or MinMaxScaler.
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/svm/_base.py:297: ConvergenceWarning: Solver terminated early (max_iter=50000).  Consider pre-processing your data with StandardScaler or MinMaxScaler.
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/svm/_base.py:297: ConvergenceWarning: Solver terminated early (max_iter=50000).  Consider pre-processing your data with StandardScaler or MinMaxScaler.
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/svm/_base.py:297: ConvergenceWarning: Solver terminated early (max_iter=50000).  Consider pre-processing your data with StandardScaler or MinMaxScaler.
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/svm/_base.py:297: ConvergenceWarning: Solver terminated early (max_iter=50000).  Consider pre-processing your data with StandardScaler or MinMaxScaler.
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/svm/_base.py:297: ConvergenceWarning: Solver terminated early (max_iter=50000).  Consider pre-processing your data with StandardScaler or MinMaxScaler.
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/svm/_base.py:297: ConvergenceWarning: Solver terminated early (max_iter=50000).  Consider pre-processing your data with StandardScaler or MinMaxScaler.
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/svm/_base.py:297: ConvergenceWarning: Solver terminated early (max_iter=50000).  Consider pre-processing your data with StandardScaler or MinMaxScaler.
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/svm/_base.py:297: ConvergenceWarning: Solver terminated early (max_iter=50000).  Consider pre-processing your data with StandardScaler or MinMaxScaler.
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/svm/_base.py:297: ConvergenceWarning: Solver terminated early (max_iter=50000).  Consider pre-processing your data with StandardScaler or MinMaxScaler.
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/svm/_base.py:297: ConvergenceWarning: Solver terminated early (max_iter=50000).  Consider pre-processing your data with StandardScaler or MinMaxScaler.
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/svm/_base.py:297: ConvergenceWarning: Solver terminated early (max_iter=50000).  Consider pre-processing your data with StandardScaler or MinMaxScaler.
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/svm/_base.py:297: ConvergenceWarning: Solver terminated early (max_iter=50000).  Consider pre-processing your data with StandardScaler or MinMaxScaler.
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/svm/_base.py:297: ConvergenceWarning: Solver terminated early (max_iter=50000).  Consider pre-processing your data with StandardScaler or MinMaxScaler.
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/svm/_base.py:297: ConvergenceWarning: Solver terminated early (max_iter=50000).  Consider pre-processing your data with StandardScaler or MinMaxScaler.
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/svm/_base.py:297: ConvergenceWarning: Solver terminated early (max_iter=50000).  Consider pre-processing your data with StandardScaler or MinMaxScaler.
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/svm/_base.py:297: ConvergenceWarning: Solver terminated early (max_iter=50000).  Consider pre-processing your data with StandardScaler or MinMaxScaler.
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/svm/_base.py:297: ConvergenceWarning: Solver terminated early (max_iter=50000).  Consider pre-processing your data with StandardScaler or MinMaxScaler.
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/svm/_base.py:297: ConvergenceWarning: Solver terminated early (max_iter=50000).  Consider pre-processing your data with StandardScaler or MinMaxScaler.
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/svm/_base.py:297: ConvergenceWarning: Solver terminated early (max_iter=50000).  Consider pre-processing your data with StandardScaler or MinMaxScaler.
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/svm/_base.py:297: ConvergenceWarning: Solver terminated early (max_iter=50000).  Consider pre-processing your data with StandardScaler or MinMaxScaler.
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/svm/_base.py:297: ConvergenceWarning: Solver terminated early (max_iter=50000).  Consider pre-processing your data with StandardScaler or MinMaxScaler.
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/svm/_base.py:297: ConvergenceWarning: Solver terminated early (max_iter=50000).  Consider pre-processing your data with StandardScaler or MinMaxScaler.
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/svm/_base.py:297: ConvergenceWarning: Solver terminated early (max_iter=50000).  Consider pre-processing your data with StandardScaler or MinMaxScaler.
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/svm/_base.py:297: ConvergenceWarning: Solver terminated early (max_iter=50000).  Consider pre-processing your data with StandardScaler or MinMaxScaler.
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/svm/_base.py:297: ConvergenceWarning: Solver terminated early (max_iter=50000).  Consider pre-processing your data with StandardScaler or MinMaxScaler.
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/svm/_base.py:297: ConvergenceWarning: Solver terminated early (max_iter=50000).  Consider pre-processing your data with StandardScaler or MinMaxScaler.
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/svm/_base.py:297: ConvergenceWarning: Solver terminated early (max_iter=50000).  Consider pre-processing your data with StandardScaler or MinMaxScaler.
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/svm/_base.py:297: ConvergenceWarning: Solver terminated early (max_iter=50000).  Consider pre-processing your data with StandardScaler or MinMaxScaler.
+  warnings.warn(
+/Applications/anaconda3/lib/python3.12/site-packages/sklearn/svm/_base.py:297: ConvergenceWarning: Solver terminated early (max_iter=50000).  Consider pre-processing your data with StandardScaler or MinMaxScaler.
+  warnings.warn(
+</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>Best parameters: {'C': 10, 'class_weight': None, 'kernel': 'rbf'}
+Best f1 score: 0.8827
+</pre>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=4a33804c-c774-4e0a-a9ca-671b30136456">
 <div class="jp-Cell-inputWrapper" tabindex="0">
@@ -10302,7 +10682,18 @@ weighted avg       0.76      0.69      0.71      1359
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<p>При выполнении кода появились warnings, означающие, что при некоторых параметрах модель не сошлась (поэтому output очищен в версии HTML, в .ipynb есть полный лог ячейки). Тем  не менее есть те, которые улучшили модель (Best parameters: {'C': 10, 'class_weight': None, 'kernel': 'rbf'}; Best f1 score: 0.8827), поэтому с ними проверим обучение на нашей выборке.</p>
+<p>При выполнении кода появились warnings, означающие, что при некоторых параметрах модель не сошлась (поэтому output скрыт). Тем  не менее есть те, которые улучшили модель (Best parameters: {'C': 10, 'class_weight': None, 'kernel': 'rbf'}; Best f1 score: 0.8827), поэтому с ними проверим обучение на нашей выборке.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=9b87f8ee-ec29-4dc3-b350-36c722ce5d9b">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<p>When executing the code, warnings appeared indicating that the model did not converge with some parameters (therefore the output is hidden). Nevertheless, there are parameters that improved the model (Best parameters: {'C': 10, 'class_weight': None, 'kernel': 'rbf'}; Best f1 score: 0.8827), so we will use them to test training on our dataset.</p>
 </div>
 </div>
 </div>
@@ -10315,6 +10706,7 @@ weighted avg       0.76      0.69      0.71      1359
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="c1"># оценим модель с новыми гиперпараметрами</span>
+<span class="c1"># Evaluate the model with the new hyperparameters</span>
 <span class="n">svm1</span> <span class="o">=</span> <span class="n">SVC</span><span class="p">(</span><span class="o">**</span><span class="n">grid_search</span><span class="o">.</span><span class="n">best_params_</span><span class="p">)</span>
 <span class="n">svm1</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train_over</span><span class="p">,</span> <span class="n">y_train_over</span><span class="p">)</span>
 <span class="n">y_pred</span> <span class="o">=</span> <span class="n">svm1</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
@@ -10447,6 +10839,17 @@ weighted avg       0.81      0.80      0.80      1359
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <p>В целом, можно сказать, что метрики по тем или иным параметрам улучшились, особенно это заметно для GradientBoosting. Радует, что почти все модели, кроме логистической регресси, стали присваивать класс с отрицательным ddG лучше чем 50%.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=20562f94-02ce-4541-8259-5702576a1f58">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<p>Overall, it can be said that the metrics have improved with certain parameters, which is particularly noticeable for GradientBoosting. It is encouraging that almost all models, except for logistic regression, have become better at assigning the class with negative ddG, exceeding 50%.</p>
 </div>
 </div>
 </div>
